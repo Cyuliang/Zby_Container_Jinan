@@ -38,7 +38,7 @@ private:
 private:
     Ui::MainWindow *ui;         
 
-private slots:
+public slots:
 
     /*****************************
      * 车牌
@@ -85,10 +85,10 @@ private slots:
     void linkStateSlot(const QString &address,bool state);
 
     ///
-    /// \brief receiveDataSlot 接收数据
+    /// \brief toSendDataSlot 发送数据
     /// \param data 数据体
     ///
-    void receiveDataSlot(const QString &data);
+    void toSendDataSlot(int channel_number, const QString &data);
 
     /*****************************
      * Action
@@ -161,11 +161,11 @@ signals:
     ///
     void  InitializationParameterSignal(const QString& address,const quint16& port,const int& serviceType,const int& serviceMode);
 
-    ///
-    /// \brief toSendDataSignal 发送数据
-    /// \param data 数据体
-    ///
-    void toSendDataSignal(int channel_number, const QString &data);
+//    ///
+//    /// \brief toSendDataSignal 发送数据
+//    /// \param data 数据体
+//    ///
+//    void toSendDataSignal(int channel_number, const QString &data);
 };
 
 #endif // MAINWINDOW_H

@@ -47,13 +47,11 @@ void MainWindow::InitializationParameter()
             /* 初始化参数 */
             connect(this,&MainWindow::InitializationParameterSignal,pSocketServerInterface,&DataInterchange_Interface::InitializationParameterSlot);
             /* 发送数据 */
-            connect(this,&MainWindow::toSendDataSignal,pSocketServerInterface,&DataInterchange_Interface::toSendDataSlot);
+            connect(pSocketServerInterface,&DataInterchange_Interface::toSendDataSignal,this,&MainWindow::toSendDataSlot);
             /* 日志信息 */
             connect(pSocketServerInterface,&DataInterchange_Interface::messageSignal,this,&MainWindow::messageSlot);
             /* 释放资源 */
             connect(this,&MainWindow::releaseResourcesSignal,pSocketServerInterface,&DataInterchange_Interface::releaseResourcesSlot);
-            /* 接收数据 */
-            connect(pSocketServerInterface,&DataInterchange_Interface::receiveDataSignal,this,&MainWindow::receiveDataSlot);
             /* 链接状态 */
             connect(pSocketServerInterface,&DataInterchange_Interface::linkStateSingal,this,&MainWindow::linkStateSlot);
         }
@@ -108,7 +106,7 @@ void MainWindow::linkStateSlot(const QString &address, bool state)
 
 }
 
-void MainWindow::receiveDataSlot(const QString &data)
+void MainWindow::toSendDataSlot(int channel_number, const QString &data)
 {
     qDebug()<<data;
     ui->textEdit->setTextColor(Qt::green);
