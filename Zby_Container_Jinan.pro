@@ -29,7 +29,9 @@ SOURCES += \
         mainwindow.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    TheLicensePlate_WTY/thelicenseplate_wty_interface.h \
+    DataInterchange/datainterchange_interface.h
 
 FORMS += \
         mainwindow.ui
