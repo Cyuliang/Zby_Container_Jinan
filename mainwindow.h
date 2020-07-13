@@ -83,6 +83,16 @@ private slots:
     ///
     void receiveDataSlot(const QString &data);
 
+    void on_action_find_triggered();
+
+    void on_action_video_triggered(bool checked);
+
+    void on_action_setting_triggered();
+
+    void on_action_snap_triggered();
+
+    void on_action_lifting_triggered();
+
 signals:
 
     /*****************************

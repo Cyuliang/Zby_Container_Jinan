@@ -15,7 +15,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::InitializationParameter()
 {
-
     QDir pluginsDir(QCoreApplication::applicationDirPath());
 
     for(QString file:pluginsDir.entryList(QDir::Files)){
@@ -64,7 +63,19 @@ void MainWindow::InitializationParameter()
 
 void MainWindow::messageSlot(const QString &type, const QString &msg)
 {
-
+    if(ui->textEdit->document()->lineCount()>300){
+        ui->textEdit->clear();
+    }
+    if(type=="ERROR"){
+        ui->textEdit->setTextColor(Qt::red);
+    }
+    else if(type=="INFO"){
+        ui->textEdit->setTextColor(Qt::blue);
+    }
+    else {
+        ui->textEdit->setTextColor(Qt::black);
+    }
+    ui->textEdit->append(msg);
 }
 
 void MainWindow::imageFlowSlot(QByteArray img)
@@ -94,4 +105,29 @@ void MainWindow::linkStateSlot(const QString &address, bool state)
 
 void MainWindow::receiveDataSlot(const QString &data)
 {
+}
+
+void MainWindow::on_action_find_triggered()
+{
+
+}
+
+void MainWindow::on_action_video_triggered(bool checked)
+{
+
+}
+
+void MainWindow::on_action_setting_triggered()
+{
+
+}
+
+void MainWindow::on_action_snap_triggered()
+{
+
+}
+
+void MainWindow::on_action_lifting_triggered()
+{
+
 }
