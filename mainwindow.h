@@ -3,8 +3,10 @@
 
 #include <QMainWindow>
 #include <QDir>
+#include <QtNetwork/QHostAddress>
 #include <QApplication>
 #include <QPluginLoader>
+#include <QDebug>
 
 #include "TheLicensePlate_WTY/thelicenseplate_wty_interface.h"
 #include "DataInterchange/datainterchange_interface.h"
@@ -27,6 +29,11 @@ private:
     /// \brief InitializationParameter 初始化参数
     ///
     void InitializationParameter();
+
+    ///
+    /// \brief InitializationEquipment 初始化设备
+    ///
+    void InitializationEquipment();
 
 private:
     Ui::MainWindow *ui;         
@@ -82,6 +89,10 @@ private slots:
     /// \param data 数据体
     ///
     void receiveDataSlot(const QString &data);
+
+    /*****************************
+     * Action
+     ******************************/
 
     void on_action_find_triggered();
 

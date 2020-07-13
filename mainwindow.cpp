@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    InitializationParameter();
 }
 
 MainWindow::~MainWindow()
@@ -59,6 +61,12 @@ void MainWindow::InitializationParameter()
             delete plugin;
         }
     }
+    InitializationEquipment();
+}
+
+void MainWindow::InitializationEquipment()
+{
+    emit InitializationParameterSignal("192.168.0.116",12011,0,0);
 }
 
 void MainWindow::messageSlot(const QString &type, const QString &msg)
@@ -71,9 +79,6 @@ void MainWindow::messageSlot(const QString &type, const QString &msg)
     }
     else if(type=="INFO"){
         ui->textEdit->setTextColor(Qt::blue);
-    }
-    else {
-        ui->textEdit->setTextColor(Qt::black);
     }
     ui->textEdit->append(msg);
 }
@@ -105,6 +110,9 @@ void MainWindow::linkStateSlot(const QString &address, bool state)
 
 void MainWindow::receiveDataSlot(const QString &data)
 {
+    qDebug()<<data;
+    ui->textEdit->setTextColor(Qt::green);
+    ui->textEdit->append(data);
 }
 
 void MainWindow::on_action_find_triggered()
