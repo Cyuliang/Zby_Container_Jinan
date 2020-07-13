@@ -94,5 +94,4 @@ void MainWindow::linkStateSlot(const QString &address, bool state)
 
 void MainWindow::receiveDataSlot(const QString &data)
 {
-
 }
