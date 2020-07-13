@@ -7,12 +7,18 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    openStream=false;
     InitializationParameter();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    emit releaseResourcesSignal();
 }
 
 void MainWindow::InitializationParameter()
@@ -65,6 +71,7 @@ void MainWindow::InitializationParameter()
 void MainWindow::InitializationEquipment()
 {
     emit InitializationParameterSignal("192.168.0.116",12011,0,0);
+    emit initCameraSignal("192.168.1.100","192.168.1.98",9100,QApplication::applicationDirPath(),4,1);
 }
 
 void MainWindow::messageSlot(const QString &type, const QString &msg)
@@ -83,17 +90,23 @@ void MainWindow::messageSlot(const QString &type, const QString &msg)
 
 void MainWindow::imageFlowSlot(QByteArray img)
 {
-
+    pix.loadFromData(img);
+    ui->label_3->setPixmap(pix);
 }
 
 void MainWindow::theVideoStreamSlot(QByteArray arrImg)
-{
-
+{    
+    if(openStream){
+        pix.loadFromData(arrImg);
+        ui->label_3->setPixmap(pix);
+    }
 }
 
 void MainWindow::resultsTheLicenseSlot(const QString &plate, const QString &color, const QString &time, QByteArray arrImg)
 {
-
+    ui->lineEdit->setText(plate);
+    ui->lineEdit_2->setText(time);
+    ui->lineEdit_3->setText(color);
 }
 
 void MainWindow::equipmentStateSlot(bool state)
@@ -108,7 +121,6 @@ void MainWindow::linkStateSlot(const QString &address, bool state)
 
 void MainWindow::toSendDataSlot(int channel_number, const QString &data)
 {
-    qDebug()<<data;
     ui->textEdit->setTextColor(Qt::green);
     ui->textEdit->append(data);
 }
@@ -120,7 +132,12 @@ void MainWindow::on_action_find_triggered()
 
 void MainWindow::on_action_video_triggered(bool checked)
 {
-
+    if(checked){
+        openStream=true;
+    }
+    else {
+        openStream=false;
+    }
 }
 
 void MainWindow::on_action_setting_triggered()

@@ -6,6 +6,7 @@
 #include <QtNetwork/QHostAddress>
 #include <QApplication>
 #include <QPluginLoader>
+#include <QCloseEvent>
 #include <QDebug>
 
 #include "TheLicensePlate_WTY/thelicenseplate_wty_interface.h"
@@ -21,7 +22,9 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() Q_DECL_OVERRIDE;
+
+    void closeEvent(QCloseEvent* event)Q_DECL_OVERRIDE;
 
 private:
 
@@ -37,6 +40,13 @@ private:
 
 private:
     Ui::MainWindow *ui;         
+
+    QPixmap pix;
+
+    ///
+    /// \brief openStream 打开视频流
+    ///
+    bool openStream;
 
 public slots:
 
