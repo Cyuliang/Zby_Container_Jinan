@@ -117,12 +117,14 @@ void DataInterchange::connectedSlot()
 
     emit connectCountSignal(1);
     emit messageSignal(ZBY_LOG("INFO"), tr("IP:%1:%2 link successful").arg(address).arg(port));
+    emit linkStateSingal(address,true);
 }
 
 void DataInterchange::disconnectedSlot()
 {
     isConnected=false;
     emit connectCountSignal(-1);
+    emit linkStateSingal(address,false);
 }
 
 void DataInterchange::displayErrorSlot(QAbstractSocket::SocketError socketError)
@@ -141,6 +143,8 @@ void DataInterchange::setHeartPacketStateSlot(bool state)
 void DataInterchange::receiveDataSlot()
 {
     QByteArray buf=pTcpClient->readAll();
+    emit messageSignal(ZBY_LOG("INFO"),buf);
+    emit toSendDataSignal(channel,buf);
 }
 
 void DataInterchange::toSendDataSlot(int channel_number,const QString &data)

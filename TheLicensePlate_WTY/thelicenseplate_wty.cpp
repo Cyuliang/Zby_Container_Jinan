@@ -45,8 +45,8 @@ TheLicensePlate_WTY::~TheLicensePlate_WTY()
 
 bool TheLicensePlate_WTY::initializationParameter()
 {
-    //pDLL=new QLibrary (QDir::toNativeSeparators(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("Plugins/WTY/window/libwty")),this) ;/* windows*/
-    pDLL=new QLibrary (QDir::toNativeSeparators(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("Plugins/WTY/linux/libwty")),this) ;/* linux */
+    pDLL=new QLibrary (QDir::toNativeSeparators(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("Plugins/WTY/windows/WTY")),this) ;/* windows*/
+    //pDLL=new QLibrary (QDir::toNativeSeparators(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("Plugins/WTY/linux/libwty")),this) ;/* linux */
     if(pDLL->load()){
         CLIENT_LPRC_RegCLIENTConnEvent=reinterpret_cast<CLIENT_LPRC_RegCLIENTConnEventFUN>(pDLL->resolve("CLIENT_LPRC_RegCLIENTConnEvent"));
         CLIENT_LPRC_RegDataEx2Event=reinterpret_cast<CLIENT_LPRC_RegDataEx2EventFUN>(pDLL->resolve("CLIENT_LPRC_RegDataEx2Event"));
@@ -65,6 +65,11 @@ bool TheLicensePlate_WTY::initializationParameter()
 
         return true;
     }
+
+    emit messageSignal(ZBY_LOG("ERROR"),pDLL->errorString());
+    delete pDLL;
+    pDLL=nullptr;
+
     return  false;
 }
 
@@ -107,7 +112,7 @@ void TheLicensePlate_WTY::saveImg(QByteArray arrImg, const QString &time)
         QPixmap *labelPix = new QPixmap();
         labelPix->loadFromData(arrImg);
         QPixmap labelPixFit=  labelPix->scaled(1280,720, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);/* 缩放图片 */
-        QString image=QDir::toNativeSeparators(tr("%1/%2%3%4.jpg").arg(dir.path()).arg(QDateTime::fromString(time,"yyyy-MM-dd hh:mm:ss").toString("yyyyMMddhhmmss")).arg(7).arg(channel));
+        QString image=QDir::toNativeSeparators(tr("%1/%2%3%4.jpg").arg(dir.path()).arg(QDateTime::fromString(time,"yyyy-M-d h:m:s").toString("yyyyMMddhhmmss")).arg(7).arg(channel));
         labelPixFit.save(image);
         delete labelPix;
         labelPix=nullptr;
@@ -165,18 +170,27 @@ void TheLicensePlate_WTY::connectCallback(char *chWTYIP, UINT nStatus, LDWORD dw
 
 void TheLicensePlate_WTY::dataEx2Callback(CLIENT_LPRC_PLATE_RESULTEX *recResultEx, LDWORD dwUser)
 {
-    QByteArray arrImg=QByteArray::fromRawData(reinterpret_cast<const char*>(recResultEx->pFullImage.pBuffer),recResultEx->pFullImage.nLen);
-    QString dateTime= QString("%-1%2-%3 %4:%5:%6").arg(recResultEx->shootTime.Year).arg(recResultEx->shootTime.Month).arg(recResultEx->shootTime.Day).arg(recResultEx->shootTime.Hour).arg(recResultEx->shootTime.Minute).arg(recResultEx->shootTime.Second);
-    emit pThis->resultsTheLicensePlateSignal(recResultEx->chLicense,recResultEx->chColor,dateTime,arrImg);
+    QByteArray arrImg(reinterpret_cast<const char*>(recResultEx->pFullImage.pBuffer),recResultEx->pFullImage.nLen);
+    QString dateTime= QString("%1-%2-%3 %4:%5:%6").arg(recResultEx->shootTime.Year).arg(recResultEx->shootTime.Month).arg(recResultEx->shootTime.Day).arg(recResultEx->shootTime.Hour).arg(recResultEx->shootTime.Minute).arg(recResultEx->shootTime.Second);
+
+    emit pThis->resultsTheLicensePlateSignal(QString::fromLocal8Bit(recResultEx->chLicense),QString::fromLocal8Bit(recResultEx->chColor),dateTime,arrImg);
+    emit pThis->messageSignal(ZBY_LOG("INFO"),tr("License Plate recognition results:%1-%2").arg(QString::fromLocal8Bit(recResultEx->chLicense)).arg(dateTime));
+    emit pThis->imageFlowSignal(arrImg);
+
     pThis->saveImg(arrImg,dateTime);
 }
 
 void TheLicensePlate_WTY::jpegCallback(CLIENT_LPRC_DEVDATA_INFO *JpegInfo, LDWORD dwUser)
 {
-    if(JpegInfo->chIp==pThis->arrAddr.data() && JpegInfo->nStatus==0){
-        QByteArray arrImg=QByteArray::fromRawData(reinterpret_cast<const char*>(JpegInfo->pchBuf),JpegInfo->nLen);
-        emit pThis->theVideoStreamSignal(arrImg);
-    }
+    QThread::msleep(200);
+//    if(JpegInfo->chIp==pThis->arrAddr.data() && JpegInfo->nStatus==0){
+//        QByteArray arrImg(reinterpret_cast<const char*>(JpegInfo->pchBuf),JpegInfo->nLen);
+//        emit pThis->theVideoStreamSignal(arrImg);
+//        //arrImg.clear();
+//    }
+    QByteArray arrImg(reinterpret_cast<const char*>(JpegInfo->pchBuf),JpegInfo->nLen);
+    emit pThis->theVideoStreamSignal(arrImg);
+    arrImg.clear();
 }
 
 void TheLicensePlate_WTY::getGpioStateCallback(char *chWTYIP, CLIENT_LPRC_GPIO_In_Statue *pGpioState)
@@ -211,10 +225,15 @@ void TheLicensePlate_WTY::simulationCaptureSlot()
 void TheLicensePlate_WTY::liftingElectronicRailingSlot(bool gate)
 {
     if(gate){
-        CLIENT_LPRC_SetRelayClose(arrAddr.data(),9110);
+        if(CLIENT_LPRC_SetRelayClose!=nullptr && CLIENT_LPRC_SetRelayClose(arrAddr.data(),9110)==0)
+        {
+            emit messageSignal(ZBY_LOG("INFO"),"Manual lifting lever successful");
+        }
     }
     else {
-        CLIENT_LPRC_DropRod(arrAddr.data(),9110);
+        if(CLIENT_LPRC_DropRod!=nullptr && CLIENT_LPRC_DropRod(arrAddr.data(),9110)==0){
+            emit messageSignal(ZBY_LOG("INFO"),"Manual drop successfully");
+        }
     }
 }
 
@@ -245,10 +264,7 @@ void TheLicensePlate_WTY::openTheVideoSlot(bool play)
 
 void TheLicensePlate_WTY::releaseResourcesSlot()
 {
-    if(CLIENT_LPRC_QuitDevice!=nullptr && CLIENT_LPRC_QuitDevice(arrAddr.data())==0){
-        messageSignal(ZBY_LOG("INFO"),tr("IP:%1 The license plate camera was disconnected successfully").arg(address));
-    }
-    else {
-        messageSignal(ZBY_LOG("ERROR"),tr("IP:%1 The license plate camera failed to disconnect").arg(address));
+    if(CLIENT_LPRC_QuitDevice!=nullptr){
+        CLIENT_LPRC_QuitDevice(arrAddr.data());
     }
 }

@@ -1,0 +1,15 @@
+debug/main.o
+debug/mainwindow.o
+debug/setting_dialog.o
+debug/data_form.o
+debug/find_dialog.o
+debug/image_dialog.o
+debug/moc_mainwindow.o
+debug/moc_datainterchange_interface.o
+debug/moc_thelicenseplate_wty_interface.o
+debug/moc_setting_dialog.o
+debug/moc_databaseinsertinterface.o
+debug/moc_databasereadinterface.o
+debug/moc_data_form.o
+debug/moc_find_dialog.o
+debug/moc_image_dialog.o

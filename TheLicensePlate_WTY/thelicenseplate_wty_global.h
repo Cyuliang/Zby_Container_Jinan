@@ -4,6 +4,7 @@
 #include <QtCore/qglobal.h>
 #include <QLibrary>
 #include <QDir>
+#include <QThread>
 #include <QDateTime>
 #include <QMutexLocker>
 #include <QMutex>

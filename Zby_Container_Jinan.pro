@@ -5,6 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += network
+QT       += sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,17 +28,39 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    setting_dialog.cpp \
+    data_form.cpp \
+    find_dialog.cpp \
+    image_dialog.cpp \
+    picture_dialog.cpp
 
 HEADERS += \
         mainwindow.h \
-    TheLicensePlate_WTY/thelicenseplate_wty_interface.h \
-    DataInterchange/datainterchange_interface.h
+    datainterchange_interface.h \
+    thelicenseplate_wty_interface.h \
+    setting_dialog.h \
+    databaseinsertinterface.h \
+    databasereadinterface.h \
+    data_form.h \
+    find_dialog.h \
+    image_dialog.h \
+    picture_dialog.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    setting_dialog.ui \
+    data_form.ui \
+    find_dialog.ui \
+    image_dialog.ui \
+    picture_dialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    ico.qrc
+
+RC_ICONS=ICO.ico

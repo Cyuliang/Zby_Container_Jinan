@@ -8,6 +8,8 @@ QT       += gui
 
 CONFIG += plugin
 
+VERSION = 1.0
+
 TARGET = TheLicensePlate_WTY
 TEMPLATE = lib
 
